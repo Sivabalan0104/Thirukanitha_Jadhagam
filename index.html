@@ -26,6 +26,18 @@
             line-height: 1.6;
         }
 
+        /* குலதெய்வம் துணை வாசகம் */
+        .divine-invocation {
+            background-color: #600018;
+            color: var(--secondary-color);
+            text-align: center;
+            padding: 0.5rem;
+            font-weight: bold;
+            font-size: 1.1rem;
+            border-bottom: 1px solid var(--secondary-color);
+            letter-spacing: 1px;
+        }
+
         header {
             background-color: var(--primary-color);
             color: white;
@@ -38,14 +50,12 @@
         header h1 {
             font-size: 2.4rem;
             margin-bottom: 0.5rem;
-            letter-spacing: 1px;
             font-weight: 700;
         }
 
         header p {
             font-size: 1.1rem;
             color: var(--secondary-color);
-            font-weight: 500;
         }
 
         .container {
@@ -84,13 +94,13 @@
 
         .form-group {
             margin-bottom: 1.2rem;
+            position: relative;
         }
 
         .form-group label {
             display: block;
             margin-bottom: 0.5rem;
             font-weight: 600;
-            font-size: 0.95rem;
         }
 
         .form-group input {
@@ -101,7 +111,6 @@
             font-size: 1rem;
         }
 
-        /* Flex row specifically for entering numbers directly */
         .date-row {
             display: flex;
             gap: 0.5rem;
@@ -111,9 +120,31 @@
             text-align: center;
         }
 
-        .form-group input:focus {
-            outline: none;
-            border-color: var(--primary-color);
+        /* Geocoding Suggestion Dropdown */
+        .suggestions-box {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 100%;
+            background: white;
+            border: 1px solid #ccc;
+            border-top: none;
+            z-index: 1000;
+            max-height: 200px;
+            overflow-y: auto;
+            border-radius: 0 0 4px 4px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .suggestion-item {
+            padding: 0.75rem;
+            cursor: pointer;
+            font-size: 0.9rem;
+            border-bottom: 1px solid #eee;
+        }
+
+        .suggestion-item:hover {
+            background-color: #f5f5f5;
         }
 
         button.btn-calculate {
@@ -145,40 +176,44 @@
             grid-template-columns: repeat(4, 1fr);
             grid-template-rows: repeat(4, 1fr);
             width: 100%;
-            max-width: 400px;
+            max-width: 420px;
             aspect-ratio: 1 / 1;
             border: 3px solid var(--primary-color);
             background-color: #fff;
+            cursor: pointer;
         }
 
         .cell {
             border: 1px solid #b58a33;
             padding: 0.4rem;
-            font-size: 0.8rem;
+            font-size: 0.85rem;
             display: flex;
             flex-direction: column;
             justify-content: flex-start;
             align-items: center;
             background-color: #fff;
-            overflow: hidden;
+            transition: background 0.2s ease;
+        }
+
+        .cell:hover {
+            background-color: #fffdf0;
         }
 
         .cell .house-name {
             font-size: 0.65rem;
             color: #7f8c8d;
-            margin-bottom: 4px;
+            margin-bottom: 2px;
             text-align: center;
         }
 
         .cell .planets {
-            color: var(--primary-color);
+            color: #111;
             font-weight: bold;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             text-align: center;
-            word-break: break-all;
             display: flex;
             flex-direction: column;
-            gap: 2px;
+            gap: 1px;
         }
 
         .center-space {
@@ -191,10 +226,8 @@
             justify-content: center;
             align-items: center;
             text-align: center;
-            font-size: 1rem;
             color: var(--primary-color);
             font-weight: bold;
-            padding: 0.5rem;
         }
 
         .contact-buttons {
@@ -222,11 +255,12 @@
             text-align: center;
             padding: 1.5rem;
             margin-top: 4rem;
-            font-size: 0.9rem;
         }
     </style>
 </head>
 <body>
+
+    <div class="divine-invocation">அருள்மிகு கிளாவடி மாடசாமி துணை</div>
 
     <header>
         <h1>Annai MAYA Jodhida nilayam</h1>
@@ -244,7 +278,7 @@
                 </div>
                 
                 <div class="form-group">
-                    <label>Date of Birth / பிறந்த தேதி (DD / MM / YYYY):</label>
+                    <label>Date of Birth / பிறந்த தேதி:</label>
                     <div class="date-row">
                         <input type="number" id="birth_day" required min="1" max="31" placeholder="DD">
                         <input type="number" id="birth_month" required min="1" max="12" placeholder="MM">
@@ -256,36 +290,39 @@
                     <label for="tob">Time of Birth / பிறந்த நேரம்:</label>
                     <input type="time" id="tob" required>
                 </div>
+
                 <div class="form-group">
                     <label for="pob">Place of Birth / பிறந்த ஊர்:</label>
-                    <input type="text" id="pob" required value="Erode">
+                    <input type="text" id="pob" autocomplete="off" required placeholder="Type city name (e.g. Erode, Chennai)">
+                    <div id="suggestions" class="suggestions-box" style="display: none;"></div>
                 </div>
+
                 <button type="submit" class="btn-calculate">Generate Rasi Chart / ஜாதகம் கணக்கிடுக</button>
             </form>
         </div>
 
         <div class="card chart-container">
             <h2>Rasi Chart / ராசி கட்டம் (Thirukanitha)</h2>
-            <div class="rasi-chart">
-                <div class="cell" id="house-12"><span class="house-name">மீனம்<br>(Meenam)</span><div class="planets"></div></div>
-                <div class="cell" id="house-1"><span class="house-name">மேஷம்<br>(Mesham)</span><div class="planets"></div></div>
-                <div class="cell" id="house-2"><span class="house-name">ரிஷபம்<br>(Rishabam)</span><div class="planets"></div></div>
-                <div class="cell" id="house-3"><span class="house-name">மிதுனம்<br>(Mithunam)</span><div class="planets"></div></div>
+            <div class="rasi-chart" id="rasiGrid">
+                <div class="cell" id="house-12"><span class="house-name">மீனம் (Meenam)</span><div class="planets"></div></div>
+                <div class="cell" id="house-1"><span class="house-name">மேஷம் (Mesham)</span><div class="planets"></div></div>
+                <div class="cell" id="house-2"><span class="house-name">ரிஷபம் (Rishabam)</span><div class="planets"></div></div>
+                <div class="cell" id="house-3"><span class="house-name">மிதுனம் (Mithunam)</span><div class="planets"></div></div>
                 
-                <div class="cell" id="house-11"><span class="house-name">கும்பம்<br>(Kumbham)</span><div class="planets"></div></div>
+                <div class="cell" id="house-11"><span class="house-name">கும்பம் (Kumbham)</span><div class="planets"></div></div>
                 <div class="center-space">
-                    <span style="font-size: 0.85rem; letter-spacing: 0.5px;">Annai MAYA</span>
+                    <span style="font-size: 0.9rem; letter-spacing: 0.5px;">Annai MAYA</span>
                     <span style="font-size: 0.75rem; color:#555; margin-top:5px;" id="output-name">ராசி கட்டம்</span>
                 </div>
-                <div class="cell" id="house-4"><span class="house-name">கடகம்<br>(Karkatakam)</span><div class="planets"></div></div>
+                <div class="cell" id="house-4"><span class="house-name">கடகம் (Karkatakam)</span><div class="planets"></div></div>
                 
-                <div class="cell" id="house-10"><span class="house-name">மகரம்<br>(Makaram)</span><div class="planets"></div></div>
-                <div class="cell" id="house-5"><span class="house-name">சிம்மம்<br>(Simham)</span><div class="planets"></div></div>
+                <div class="cell" id="house-10"><span class="house-name">மகரம் (Makaram)</span><div class="planets"></div></div>
+                <div class="cell" id="house-5"><span class="house-name">சிம்மம் (Simham)</span><div class="planets"></div></div>
                 
-                <div class="cell" id="house-9"><span class="house-name">தனுசு<br>(Dhanusu)</span><div class="planets"></div></div>
-                <div class="cell" id="house-8"><span class="house-name">விருச்சிகம்<br>(Vrischigam)</span><div class="planets"></div></div>
-                <div class="cell" id="house-7"><span class="house-name">துலாம்<br>(Thulam)</span><div class="planets"></div></div>
-                <div class="cell" id="house-6"><span class="house-name">கன்னி<br>(Kanyam)</span><div class="planets"></div></div>
+                <div class="cell" id="house-9"><span class="house-name">தனுசு (Dhanusu)</span><div class="planets"></div></div>
+                <div class="cell" id="house-8"><span class="house-name">விருச்சிகம் (Vrischigam)</span><div class="planets"></div></div>
+                <div class="cell" id="house-7"><span class="house-name">துலாம் (Thulam)</span><div class="planets"></div></div>
+                <div class="cell" id="house-6"><span class="house-name">கன்னி (Kanyam)</span><div class="planets"></div></div>
             </div>
         </div>
 
@@ -294,11 +331,10 @@
             <p><strong>Astrologer:</strong> &nbsp; ALAGUMAILRAJ</p>
             <p><strong>Astrology Center:</strong> &nbsp; Annai MAYA Jodhida nilayam</p>
             <p><strong>Office Address:</strong> &nbsp; 15, Pillayar Kovil Street, KNK Road, Erode - 638003, Tamil Nadu</p>
-            <p><strong>Consultation Timings:</strong> &nbsp; 10:00 AM - 8:00 PM (IST)</p>
             
             <div class="contact-buttons">
                 <a href="tel:+919999999999" class="btn-contact btn-phone">📞 Call Office Now</a>
-                <a href="https://wa.me/919999999999?text=Hello%20Astrologer%20ALAGUMAILRAJ,%20I%20would%20like%20to%20book%20a%20horoscope%20consultation%20at%20Annai%20MAYA%20Jodhida%20nilayam." target="_blank" class="btn-contact btn-whatsapp">💬 Chat on WhatsApp</a>
+                <a href="https://wa.me/919999999999?text=Hello%20Astrologer%20ALAGUMAILRAJ,%20I%20would%20like%20to%20book%20a%20horoscope%20consultation." target="_blank" class="btn-contact btn-whatsapp">💬 Chat on WhatsApp</a>
             </div>
         </div>
 
@@ -309,44 +345,133 @@
     </footer>
 
     <script>
+        const Rad = Math.PI / 180;
+        const Deg = 180 / Math.PI;
+
+        // Global selected coordinates container (Defaults to Erode)
+        let activeLocation = { lat: 11.3410, lng: 77.7172, label: "Erode, Tamil Nadu" };
+        let planetDegreesMemory = {}; 
+
+        // Free OpenStreetMap Nominatim Auto-complete Setup
+        const pobInput = document.getElementById('pob');
+        const suggestionsBox = document.getElementById('suggestions');
+
+        pobInput.addEventListener('input', debounce(async function() {
+            const query = pobInput.value;
+            if(query.length < 3) { suggestionsBox.style.display = 'none'; return; }
+
+            try {
+                const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=5`);
+                const data = await res.json();
+                
+                suggestionsBox.innerHTML = "";
+                if(data.length === 0) { suggestionsBox.style.display = 'none'; return; }
+
+                data.forEach(item => {
+                    const div = document.createElement('div');
+                    div.className = "suggestion-item";
+                    div.innerText = item.display_name;
+                    div.addEventListener('click', () => {
+                        pobInput.value = item.display_name;
+                        activeLocation = {
+                            lat: parseFloat(item.lat),
+                            lng: parseFloat(item.lon),
+                            label: item.display_name
+                        };
+                        suggestionsBox.style.display = 'none';
+                    });
+                    suggestionsBox.appendChild(div);
+                });
+                suggestionsBox.style.display = 'block';
+            } catch(e) { console.error("Geocoding failed", e); }
+        }, 500));
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            if(e.target !== pobInput) suggestionsBox.style.display = 'none';
+        });
+
+        function debounce(func, delay) {
+            let timeout;
+            return function(...args) {
+                clearTimeout(timeout);
+                timeout = setTimeout(() => func.apply(this, args), delay);
+            };
+        }
+
         function getJulianDay(year, month, day, hours) {
-            if (month <= 2) {
-                year -= 1;
-                month += 12;
-            }
+            if (month <= 2) { year -= 1; month += 12; }
             const A = Math.floor(year / 100);
             const B = 2 - A + Math.floor(A / 4);
-            const JD = Math.floor(365.25 * (year + 4716)) + Math.floor(30.6001 * (month + 1)) + day + (hours / 24.0) + B - 1524.5;
-            return JD;
+            return Math.floor(365.25 * (year + 4716)) + Math.floor(30.6001 * (month + 1)) + day + (hours / 24.0) + B - 1524.5;
         }
 
         function calculateLahiriAyanamsa(jd) {
             const T = (jd - 2415020.5) / 36525;
-            const ayanamsa = 22.466111 + 1.396041 * T + 0.000308 * T * T;
-            return ayanamsa % 360;
+            return (22.466111 + 1.396041 * T + 0.000308 * T * T) % 360;
         }
 
-        function getPlanetaryPositions(jd) {
-            const T = (jd - 2451545.0) / 36525;
+        // Global Universal Sunrise Equation
+        function calculateGlobalSunrise(year, month, day, latitude, longitude) {
+            const N1 = Math.floor(275 * month / 9);
+            const N2 = Math.floor((month + 9) / 12);
+            const N3 = (1 + Math.floor((year - 4 * Math.floor(year / 4) + 2) / 3));
+            const N = N1 - (N2 * N3) + day - 30;
             
-            let sun = 280.46646 + 36000.76983 * T + 0.0003032 * T * T;
+            const lngHour = longitude / 15;
+            const t = N + ((6 - lngHour) / 24);
+            
+            const M = (0.9856 * t) - 3.289;
+            const L = (M + (1.916 * Math.sin(M * Rad)) + (0.020 * Math.sin(2 * M * Rad)) + 282.634) % 360;
+            
+            const sinDec = 0.39782 * Math.sin(L * Rad);
+            const cosDec = Math.cos(Math.asin(sinDec));
+            const zenithRad = 90.8333 * Rad; 
+            
+            const cosH = (Math.cos(zenithRad) - (sinDec * Math.sin(latitude * Rad))) / (cosDec * Math.cos(latitude * Rad));
+            if (cosH > 1 || cosH < -1) return 6.0; // Failover hour
+            
+            const H = (360 - Math.acos(cosH) * Deg) / 15;
+            let RA = Math.atan(0.91764 * Math.tan(L * Rad)) * Deg;
+            RA = (RA + 360) % 360;
+            const Lquadrant  = Math.floor(L / 90) * 90;
+            const RAquadrant = Math.floor(RA / 90) * 90;
+            RA = (RA + (Lquadrant - RAquadrant)) / 15;
+            
+            const localMeanTime = H + RA - (0.06571 * t) - 6.622;
+            const utTime = (localMeanTime - lngHour + 24) % 24;
+            return utTime; 
+        }
+
+        function getFullNavagrahaPositions(jd) {
+            const T = (jd - 2451545.0) / 36525;
+            let sun = 280.46646 + 36000.76983 * T;
             let moon = 218.3165 + 481267.8813 * T;
+            let mercury = 252.2508 + 149472.6741 * T;
+            let venus = 181.9797 + 58517.8153 * T;
             let mars = 355.4533 + 19140.3026 * T;
             let jupiter = 34.4044 + 3034.7461 * T;
             let saturn = 50.0774 + 1222.1138 * T;
+            let rahu = 125.0445 - 1934.1363 * T; 
+            let ketu = rahu + 180;
 
             return {
-                sun: sun % 360,
-                moon: moon % 360,
-                mars: mars % 360,
-                jupiter: jupiter % 360,
-                saturn: saturn % 360
+                sun: sun % 360, moon: moon % 360, mercury: mercury % 360,
+                venus: venus % 360, mars: mars % 360, jupiter: jupiter % 360,
+                saturn: saturn % 360, rahu: (rahu + 360) % 360, ketu: (ketu + 360) % 360
             };
         }
 
         function mapToTamilRasiHouse(longitude) {
             const houseIndex = Math.floor(longitude / 30) + 1;
             return houseIndex > 12 ? 1 : houseIndex;
+        }
+
+        function formatDegrees(long) {
+            const degInHouse = long % 30;
+            const d = Math.floor(degInHouse);
+            const m = Math.floor((degInHouse - d) * 60);
+            return `${d}° ${m}'`;
         }
 
         function calculateThirukanitha(event) {
@@ -358,47 +483,92 @@
             const year = parseInt(document.getElementById('birth_year').value, 10);
             const tob = document.getElementById('tob').value;
 
-            if(!day || !month || !year || !tob) return alert("Please fill in all birth details.");
+            // Step 1: Detect dynamic offset using coordinate estimation baseline
+            let tzOffset = 5.5; // Indian Standard Time fallback default
+            if(activeLocation.lng < -60) tzOffset = -5.0; // Americas estimate
+            else if(activeLocation.lng > -15 && activeLocation.lng < 15) tzOffset = 0.0; // Western Europe/UK
 
-            document.getElementById('output-name').innerText = name + "'s Chart";
+            const timeParts = tob.split(':');
+            const birthHours = parseFloat(timeParts[0]) + parseFloat(timeParts[1])/60;
+            const utHours = birthHours - tzOffset; 
 
+            // Step 2: Global Sunrise Engine Trigger
+            const sunriseUT = calculateGlobalSunrise(year, month, day, activeLocation.lat, activeLocation.lng);
+            const sunriseLocalHours = (sunriseUT + tzOffset + 24) % 24;
+            const sH = Math.floor(sunriseLocalHours);
+            const sM = Math.floor((sunriseLocalHours - sH) * 60);
+            const sunriseString = `${String(sH).padStart(2,'0')}:${String(sM).padStart(2,'0')}`;
+
+            document.getElementById('output-name').innerHTML = `${name}'s Chart<br><span style="font-size:0.65rem;font-weight:normal;color:#7f8c8d;">Sunrise: ${sunriseString} Local</span>`;
+
+            // Clear houses
+            planetDegreesMemory = {};
             for(let i = 1; i <= 12; i++) {
                 document.querySelector(`#house-${i} .planets`).innerHTML = "";
+                planetDegreesMemory[i] = [];
             }
             
-            const timeParts = tob.split(':');
-            const hours = parseFloat(timeParts[0]) + parseFloat(timeParts[1])/60 - 5.5; // IST to UT adjustment
-
-            // Calculate with verified numbers
-            const jd = getJulianDay(year, month, day, hours);
+            const jd = getJulianDay(year, month, day, utHours);
             const ayanamsa = calculateLahiriAyanamsa(jd);
-            const tropicalPos = getPlanetaryPositions(jd);
+            const tropical = getFullNavagrahaPositions(jd);
 
-            const planets = {
-                "சூரி (Sun)": (tropicalPos.sun - ayanamsa + 360) % 360,
-                "சந் (Moon)": (tropicalPos.moon - ayanamsa + 360) % 360,
-                "செவ் (Mars)": (tropicalPos.mars - ayanamsa + 360) % 360,
-                "குரு (Jup)": (tropicalPos.jupiter - ayanamsa + 360) % 360,
-                "சனி (Sat)": (tropicalPos.saturn - ayanamsa + 360) % 360
+            const tamilNavagrahas = {
+                "சூரி (Sun)": (tropical.sun - ayanamsa + 360) % 360,
+                "சந் (Moon)": (tropical.moon - ayanamsa + 360) % 360,
+                "புத (Mer)": (tropical.mercury - ayanamsa + 360) % 360,
+                "சுக் (Ven)": (tropical.venus - ayanamsa + 360) % 360,
+                "செவ் (Mars)": (tropical.mars - ayanamsa + 360) % 360,
+                "குரு (Jup)": (tropical.jupiter - ayanamsa + 360) % 360,
+                "சனி (Sat)": (tropical.saturn - ayanamsa + 360) % 360,
+                "ராகு (Rahu)": (tropical.rahu - ayanamsa + 360) % 360,
+                "கேது (Ketu)": (tropical.ketu - ayanamsa + 360) % 360
             };
 
-            for (const [name, long] of Object.entries(planets)) {
+            // Map and memorize planetary degree details
+            for (const [pName, long] of Object.entries(tamilNavagrahas)) {
                 const houseId = mapToTamilRasiHouse(long);
-                const houseContainer = document.querySelector(`#house-${houseId} .planets`);
-                if(houseContainer) {
+                planetDegreesMemory[houseId].push(`${pName}: ${formatDegrees(long)}`);
+                
+                const container = document.querySelector(`#house-${houseId} .planets`);
+                if(container) {
                     const span = document.createElement('span');
-                    span.innerText = name;
-                    houseContainer.appendChild(span);
+                    span.innerText = pName.split(" ")[0]; // Abbreviation rendering logic
+                    container.appendChild(span);
                 }
             }
             
-            const lagnaIndex = Math.floor(((hours + 5.5) / 2)) % 12 + 1; 
-            const lagnaContainer = document.querySelector(`#house-${lagnaIndex} .planets`);
-            const lagSpan = document.createElement('span');
-            lagSpan.innerText = "லக்ன (Lagn)";
-            lagSpan.style.color = "blue";
-            lagnaContainer.insertBefore(lagSpan, lagnaContainer.firstChild);
+            // Step 3: Global Lagna Shift mapping relative to local sunrise offsets
+            const sunHouse = mapToTamilRasiHouse(tamilNavagrahas["சூரி (Sun)"]);
+            const hoursPastSunrise = (birthHours - sunriseLocalHours + 24) % 24;
+            const housesShifted = Math.floor(hoursPastSunrise / 2);
+            
+            let lagnaHouseId = (sunHouse + housesShifted) % 12;
+            if (lagnaHouseId === 0) lagnaHouseId = 12;
+
+            planetDegreesMemory[lagnaHouseId].push(`லக்னம் (Lagna): Node Rising Point`);
+            const lagnaContainer = document.querySelector(`#house-${lagnaHouseId} .planets`);
+            if(lagnaContainer) {
+                const lagSpan = document.createElement('span');
+                lagSpan.innerText = "ல";
+                lagSpan.style.color = "#d35400";
+                lagnaContainer.insertBefore(lagSpan, lagnaContainer.firstChild);
+            }
         }
+
+        // Feature 1 Display Modal Alternative: Direct alerts showing precise house data strings
+        document.getElementById('rasiGrid').addEventListener('click', (e) => {
+            const cell = e.target.closest('.cell');
+            if(!cell) return;
+            const houseId = cell.id.split('-')[1];
+            const houseName = cell.querySelector('.house-name').innerText.split('\n')[0];
+            
+            const readings = planetDegreesMemory[houseId];
+            if(!readings || readings.length === 0) {
+                alert(`${houseName} - கிரகங்கள் ஏதுமில்லை (Empty House)`);
+            } else {
+                alert(`${houseName} - கிரகங்களின் பாகை விபரங்கள்:\n\n${readings.join('\n')}`);
+            }
+        });
     </script>
 </body>
 </html>
