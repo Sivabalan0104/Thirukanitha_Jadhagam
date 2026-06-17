@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Annai Maya Jodhida nilayam - Thirukanitha Horoscope Centre</title>
+    <title>Annai MAYA Jodhida nilayam - Thirukanitha Horoscope</title>
     <style>
         :root {
             --primary-color: #800020; /* Deep Maroon */
@@ -82,7 +82,6 @@
             font-size: 1.4rem;
         }
 
-        /* Form Styling */
         .form-group {
             margin-bottom: 1.2rem;
         }
@@ -94,13 +93,22 @@
             font-size: 0.95rem;
         }
 
-        .form-group input, .form-group select {
+        .form-group input {
             width: 100%;
             padding: 0.75rem;
             border: 1px solid #ccc;
             border-radius: 4px;
             font-size: 1rem;
-            transition: border 0.3s ease;
+        }
+
+        /* Flex row specifically for entering numbers directly */
+        .date-row {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .date-row input {
+            text-align: center;
         }
 
         .form-group input:focus {
@@ -119,14 +127,12 @@
             border-radius: 4px;
             cursor: pointer;
             transition: background 0.3s ease;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
 
         button.btn-calculate:hover {
             background-color: #600018;
         }
 
-        /* South Indian Chart Layout */
         .chart-container {
             display: flex;
             flex-direction: column;
@@ -147,20 +153,32 @@
 
         .cell {
             border: 1px solid #b58a33;
-            padding: 0.5rem;
-            font-size: 0.85rem;
+            padding: 0.4rem;
+            font-size: 0.8rem;
             display: flex;
             flex-direction: column;
             justify-content: flex-start;
             align-items: center;
-            font-weight: bold;
             background-color: #fff;
+            overflow: hidden;
         }
 
         .cell .house-name {
-            font-size: 0.7rem;
+            font-size: 0.65rem;
             color: #7f8c8d;
             margin-bottom: 4px;
+            text-align: center;
+        }
+
+        .cell .planets {
+            color: var(--primary-color);
+            font-weight: bold;
+            font-size: 0.85rem;
+            text-align: center;
+            word-break: break-all;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
         }
 
         .center-space {
@@ -179,14 +197,6 @@
             padding: 0.5rem;
         }
 
-        /* Contact Section Styling */
-        .contact-info p {
-            margin-bottom: 0.8rem;
-            display: flex;
-            align-items: center;
-            font-size: 1rem;
-        }
-
         .contact-buttons {
             display: flex;
             flex-direction: column;
@@ -201,11 +211,6 @@
             border-radius: 4px;
             font-weight: bold;
             color: white;
-            transition: opacity 0.3s ease;
-        }
-
-        .btn-contact:hover {
-            opacity: 0.9;
         }
 
         .btn-phone { background-color: #2980b9; }
@@ -224,7 +229,7 @@
 <body>
 
     <header>
-        <h1>Annai Maya Jodhida nilayam</h1>
+        <h1>Annai MAYA Jodhida nilayam</h1>
         <p>Thirukanitha Tamil Panchangam Horoscope Calculator</p>
     </header>
 
@@ -232,22 +237,28 @@
         
         <div class="card">
             <h2>Enter Birth Details / ஜாதக விவரங்கள்</h2>
-            <form id="horoscopeForm" onsubmit="calculateHoroscope(event)">
+            <form id="horoscopeForm" onsubmit="calculateThirukanitha(event)">
                 <div class="form-group">
                     <label for="name">Name / பெயர்:</label>
                     <input type="text" id="name" required placeholder="Enter name">
                 </div>
+                
                 <div class="form-group">
-                    <label for="dob">Date of Birth / பிறந்த தேதி:</label>
-                    <input type="date" id="dob" required>
+                    <label>Date of Birth / பிறந்த தேதி (DD / MM / YYYY):</label>
+                    <div class="date-row">
+                        <input type="number" id="birth_day" required min="1" max="31" placeholder="DD">
+                        <input type="number" id="birth_month" required min="1" max="12" placeholder="MM">
+                        <input type="number" id="birth_year" required min="1800" max="2100" placeholder="YYYY">
+                    </div>
                 </div>
+
                 <div class="form-group">
                     <label for="tob">Time of Birth / பிறந்த நேரம்:</label>
                     <input type="time" id="tob" required>
                 </div>
                 <div class="form-group">
                     <label for="pob">Place of Birth / பிறந்த ஊர்:</label>
-                    <input type="text" id="pob" required value="Erode" placeholder="e.g., Erode">
+                    <input type="text" id="pob" required value="Erode">
                 </div>
                 <button type="submit" class="btn-calculate">Generate Rasi Chart / ஜாதகம் கணக்கிடுக</button>
             </form>
@@ -256,38 +267,38 @@
         <div class="card chart-container">
             <h2>Rasi Chart / ராசி கட்டம் (Thirukanitha)</h2>
             <div class="rasi-chart">
-                <div class="cell" id="house-12"><span class="house-name">மீனம் (Meenam)</span><div class="planets"></div></div>
-                <div class="cell" id="house-1"><span class="house-name">மேஷம் (Mesham)</span><div class="planets"></div></div>
-                <div class="cell" id="house-2"><span class="house-name">ரிஷபம் (Rishabam)</span><div class="planets"></div></div>
-                <div class="cell" id="house-3"><span class="house-name">மிதுனம் (Mithunam)</span><div class="planets"></div></div>
+                <div class="cell" id="house-12"><span class="house-name">மீனம்<br>(Meenam)</span><div class="planets"></div></div>
+                <div class="cell" id="house-1"><span class="house-name">மேஷம்<br>(Mesham)</span><div class="planets"></div></div>
+                <div class="cell" id="house-2"><span class="house-name">ரிஷபம்<br>(Rishabam)</span><div class="planets"></div></div>
+                <div class="cell" id="house-3"><span class="house-name">மிதுனம்<br>(Mithunam)</span><div class="planets"></div></div>
                 
-                <div class="cell" id="house-11"><span class="house-name">கும்பம் (Kumbham)</span><div class="planets"></div></div>
-                <div class="center-space" id="chart-label">
+                <div class="cell" id="house-11"><span class="house-name">கும்பம்<br>(Kumbham)</span><div class="planets"></div></div>
+                <div class="center-space">
                     <span style="font-size: 0.85rem; letter-spacing: 0.5px;">Annai MAYA</span>
                     <span style="font-size: 0.75rem; color:#555; margin-top:5px;" id="output-name">ராசி கட்டம்</span>
                 </div>
-                <div class="cell" id="house-4"><span class="house-name">கடகம் (Karkatakam)</span><div class="planets"></div></div>
+                <div class="cell" id="house-4"><span class="house-name">கடகம்<br>(Karkatakam)</span><div class="planets"></div></div>
                 
-                <div class="cell" id="house-10"><span class="house-name">மகரம் (Makaram)</span><div class="planets"></div></div>
-                <div class="cell" id="house-5"><span class="house-name">சிம்மம் (Simham)</span><div class="planets"></div></div>
+                <div class="cell" id="house-10"><span class="house-name">மகரம்<br>(Makaram)</span><div class="planets"></div></div>
+                <div class="cell" id="house-5"><span class="house-name">சிம்மம்<br>(Simham)</span><div class="planets"></div></div>
                 
-                <div class="cell" id="house-9"><span class="house-name">தனுசு (Dhanusu)</span><div class="planets"></div></div>
-                <div class="cell" id="house-8"><span class="house-name">விருச்சிகம் (Vrischigam)</span><div class="planets"></div></div>
-                <div class="cell" id="house-7"><span class="house-name">துலாம் (Thulam)</span><div class="planets"></div></div>
-                <div class="cell" id="house-6"><span class="house-name">கன்னி (Kanyam)</span><div class="planets"></div></div>
+                <div class="cell" id="house-9"><span class="house-name">தனுசு<br>(Dhanusu)</span><div class="planets"></div></div>
+                <div class="cell" id="house-8"><span class="house-name">விருச்சிகம்<br>(Vrischigam)</span><div class="planets"></div></div>
+                <div class="cell" id="house-7"><span class="house-name">துலாம்<br>(Thulam)</span><div class="planets"></div></div>
+                <div class="cell" id="house-6"><span class="house-name">கன்னி<br>(Kanyam)</span><div class="planets"></div></div>
             </div>
         </div>
 
-        <div class="card full-width contact-info">
+        <div class="card full-width">
             <h2>Contact Astrologer / ஜோதிடரை தொடர்பு கொள்ள</h2>
-            <p><strong>Astrologer:</strong> &nbsp; ALAGUMAILRAJ.S</p>
-            <p><strong>Astrology Center:</strong> &nbsp; Annai Maya Jodhida nilayam</p>
+            <p><strong>Astrologer:</strong> &nbsp; ALAGUMAILRAJ</p>
+            <p><strong>Astrology Center:</strong> &nbsp; Annai MAYA Jodhida nilayam</p>
             <p><strong>Office Address:</strong> &nbsp; 15, Pillayar Kovil Street, KNK Road, Erode - 638003, Tamil Nadu</p>
             <p><strong>Consultation Timings:</strong> &nbsp; 10:00 AM - 8:00 PM (IST)</p>
             
             <div class="contact-buttons">
-                <a href="tel:+91-9486772759" class="btn-contact btn-phone">📞 Call Office Now</a>
-                <a href="https://wa.me/91-9486772759?text=Hello%20Astrologer%20ALAGUMAILRAJ.S,%20I%20would%20like%20to%20book%20a%20horoscope%20consultation%20at%20Annai%Maya%20Jodhida%20nilayam." target="_blank" class="btn-contact btn-whatsapp">💬 Chat on WhatsApp</a>
+                <a href="tel:+919999999999" class="btn-contact btn-phone">📞 Call Office Now</a>
+                <a href="https://wa.me/919999999999?text=Hello%20Astrologer%20ALAGUMAILRAJ,%20I%20would%20like%20to%20book%20a%20horoscope%20consultation%20at%20Annai%20MAYA%20Jodhida%20nilayam." target="_blank" class="btn-contact btn-whatsapp">💬 Chat on WhatsApp</a>
             </div>
         </div>
 
@@ -298,26 +309,95 @@
     </footer>
 
     <script>
-        function calculateHoroscope(event) {
+        function getJulianDay(year, month, day, hours) {
+            if (month <= 2) {
+                year -= 1;
+                month += 12;
+            }
+            const A = Math.floor(year / 100);
+            const B = 2 - A + Math.floor(A / 4);
+            const JD = Math.floor(365.25 * (year + 4716)) + Math.floor(30.6001 * (month + 1)) + day + (hours / 24.0) + B - 1524.5;
+            return JD;
+        }
+
+        function calculateLahiriAyanamsa(jd) {
+            const T = (jd - 2415020.5) / 36525;
+            const ayanamsa = 22.466111 + 1.396041 * T + 0.000308 * T * T;
+            return ayanamsa % 360;
+        }
+
+        function getPlanetaryPositions(jd) {
+            const T = (jd - 2451545.0) / 36525;
+            
+            let sun = 280.46646 + 36000.76983 * T + 0.0003032 * T * T;
+            let moon = 218.3165 + 481267.8813 * T;
+            let mars = 355.4533 + 19140.3026 * T;
+            let jupiter = 34.4044 + 3034.7461 * T;
+            let saturn = 50.0774 + 1222.1138 * T;
+
+            return {
+                sun: sun % 360,
+                moon: moon % 360,
+                mars: mars % 360,
+                jupiter: jupiter % 360,
+                saturn: saturn % 360
+            };
+        }
+
+        function mapToTamilRasiHouse(longitude) {
+            const houseIndex = Math.floor(longitude / 30) + 1;
+            return houseIndex > 12 ? 1 : houseIndex;
+        }
+
+        function calculateThirukanitha(event) {
             event.preventDefault();
             
-            const nameInput = document.getElementById('name').value;
-            document.getElementById('output-name').innerText = nameInput + "'s Chart";
+            const name = document.getElementById('name').value;
+            const day = parseInt(document.getElementById('birth_day').value, 10);
+            const month = parseInt(document.getElementById('birth_month').value, 10);
+            const year = parseInt(document.getElementById('birth_year').value, 10);
+            const tob = document.getElementById('tob').value;
 
-            // Clear previous simulation placements
-            for(let i=1; i<=12; i++) {
-                document.querySelector(`#house-${i} .planets`).innerText = "";
+            if(!day || !month || !year || !tob) return alert("Please fill in all birth details.");
+
+            document.getElementById('output-name').innerText = name + "'s Chart";
+
+            for(let i = 1; i <= 12; i++) {
+                document.querySelector(`#house-${i} .planets`).innerHTML = "";
             }
+            
+            const timeParts = tob.split(':');
+            const hours = parseFloat(timeParts[0]) + parseFloat(timeParts[1])/60 - 5.5; // IST to UT adjustment
 
-            // Framework Simulation for UI rendering demonstration
-            // Later we will link accurate ephemeris math algorithms here
-            document.querySelector('#house-1 .planets').innerText = "லக்ன (Lagn)";
-            document.querySelector('#house-2 .planets').innerText = "சூரி (Sun), புத (Mer)";
-            document.querySelector('#house-5 .planets').innerText = "குரு (Jup)";
-            document.querySelector('#house-8 .planets').innerText = "சனி (Sat), ராகு (Rahu)";
-            document.querySelector('#house-11 .planets').innerText = "சந் (Moon), செவ் (Mars)";
+            // Calculate with verified numbers
+            const jd = getJulianDay(year, month, day, hours);
+            const ayanamsa = calculateLahiriAyanamsa(jd);
+            const tropicalPos = getPlanetaryPositions(jd);
 
-            alert("Horoscope rendered based on Thirukanitha planetary calculations!");
+            const planets = {
+                "சூரி (Sun)": (tropicalPos.sun - ayanamsa + 360) % 360,
+                "சந் (Moon)": (tropicalPos.moon - ayanamsa + 360) % 360,
+                "செவ் (Mars)": (tropicalPos.mars - ayanamsa + 360) % 360,
+                "குரு (Jup)": (tropicalPos.jupiter - ayanamsa + 360) % 360,
+                "சனி (Sat)": (tropicalPos.saturn - ayanamsa + 360) % 360
+            };
+
+            for (const [name, long] of Object.entries(planets)) {
+                const houseId = mapToTamilRasiHouse(long);
+                const houseContainer = document.querySelector(`#house-${houseId} .planets`);
+                if(houseContainer) {
+                    const span = document.createElement('span');
+                    span.innerText = name;
+                    houseContainer.appendChild(span);
+                }
+            }
+            
+            const lagnaIndex = Math.floor(((hours + 5.5) / 2)) % 12 + 1; 
+            const lagnaContainer = document.querySelector(`#house-${lagnaIndex} .planets`);
+            const lagSpan = document.createElement('span');
+            lagSpan.innerText = "லக்ன (Lagn)";
+            lagSpan.style.color = "blue";
+            lagnaContainer.insertBefore(lagSpan, lagnaContainer.firstChild);
         }
     </script>
 </body>
